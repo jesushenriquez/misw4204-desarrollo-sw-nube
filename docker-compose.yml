@@ -11,6 +11,7 @@ services:
       POSTGRES_PASSWORD: password
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ./AuthComponent/schema.sql:/docker-entrypoint-initdb.d/init.sql
 
   redis:
     image: "redis:alpine"

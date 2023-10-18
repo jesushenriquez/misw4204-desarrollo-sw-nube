@@ -29,18 +29,20 @@ def hello():
 def register():
     data = request.get_json()
 
-    contrasena = data.get("contrasena")
-    nombre_usuario = data.get("nombre_usuario")
+    username = data.get("username")
+    password1 = data.get("password1")
+    password2 = data.get("password2")
+    email = data.get("email")
 
-    contrasena_encriptada = hashlib.md5(contrasena.encode('utf-8')).hexdigest()
+    encrypt_password = hashlib.md5(password1.encode('utf-8')).hexdigest()
 
     usuario = search_user(
-        data={"nombre_usuario": nombre_usuario, "contrasena": contrasena_encriptada}
+        data={"username": username, "password": encrypt_password}
     )
 
     if usuario is None:
-        insert_user(data={"nombre_usuario": nombre_usuario, "contrasena": contrasena_encriptada})
-        return {"token": __generar_token(user_name=nombre_usuario)}
+        insert_user(data={"username": username, "password": encrypt_password, "email": email})
+        return {"token": __generar_token(user_name=username)}
     else:
         return {"msg": "El usuario ya existe"}, 400
 
@@ -48,13 +50,13 @@ def register():
 def login():
     data = request.get_json()
 
-    contrasena = data.get("contrasena")
-    nombre_usuario = data.get("nombre_usuario")
+    username = data.get("username")
+    password = data.get("password")
 
-    contrasena_encriptada = hashlib.md5(contrasena.encode('utf-8')).hexdigest()
+    encrypt_password = hashlib.md5(password.encode('utf-8')).hexdigest()
 
     usuario = search_user(
-        data={"nombre_usuario": nombre_usuario, "contrasena": contrasena_encriptada}
+        data={"username": username, "password": encrypt_password}
     )
 
     if usuario is None:
@@ -68,15 +70,15 @@ def __generar_token(user_name: str):
 def search_user(data):
     print("Buscando usuario...")
     with psycopg2.connect(
-        dbname="security_db", user="admin", password="password", host="postgres"
+        dbname="cloud_db", user="admin", password="password", host="postgres"
     ) as conn:
         with conn.cursor() as cur:
             cur.execute(
                 f"""
                     SELECT * 
-                    FROM usuarios 
-                    WHERE nombre_usuario = '{data.get("nombre_usuario")}'
-                    AND contrasena = '{data.get("contrasena")}';
+                    FROM users 
+                    WHERE username = '{data.get("username")}'
+                    AND password = '{data.get("password")}';
                 """
             )
             result = cur.fetchone()
@@ -84,13 +86,13 @@ def search_user(data):
 
 def insert_user(data):
     with psycopg2.connect(
-        dbname="security_db", user="admin", password="password", host="postgres"
+        dbname="cloud_db", user="admin", password="password", host="postgres"
     ) as conn:
         with conn.cursor() as cur:
             result = cur.execute (
                 f"""
-                    INSERT INTO usuarios (nombre_usuario, contrasena)
-                    VALUES ('{data.get("nombre_usuario")}', '{data.get("contrasena")}');
+                    INSERT INTO users (username, password, email)
+                    VALUES ('{data.get("username")}', '{data.get("password")}', '{data.get("email")}');
                 """
             )
             return result

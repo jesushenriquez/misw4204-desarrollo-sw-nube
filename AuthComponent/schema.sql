@@ -1,5 +1,6 @@
-CREATE TABLE usuarios (
+CREATE TABLE users (
     id SERIAL PRIMARY KEY,
-    nombre_usuario varchar(255),
-    contrasena varchar(1000)
+    username varchar(255),
+    password varchar(1000),
+    email varchar(1000)
 );

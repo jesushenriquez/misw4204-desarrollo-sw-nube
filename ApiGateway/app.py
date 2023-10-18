@@ -19,6 +19,9 @@ INTEGRITY_MANAGER_SERVICE_URL = "http://integrity-manager:6000/"
 INFORMACION_HV_BUSCADOR_URL = "http://informacion-hv-buscadores:5000/"
 AUTH_SERVICE_URL = "http://auth-component:8080/"
 
+CONTEXT_PATH= "/api"
+AUTH_PATH= "/auth"
+
 @app.route("/")
 def hello():
     return "Hello from apigateway v6!"
@@ -94,7 +97,7 @@ def getInformacionBuscador():
         logging.error("Error getInformacionBuscador: %s", e)
         return str(e), 500
 
-@app.route("/login", methods=["POST"])
+@app.route(CONTEXT_PATH + AUTH_PATH + "/login", methods=["POST"])
 def login():
     try:
         response = requests.post(AUTH_SERVICE_URL+'login', json=request.json)
@@ -104,7 +107,7 @@ def login():
         logging.error("Error login: %s", e)
         return str(e), 500
 
-@app.route("/register", methods=["POST"])
+@app.route(CONTEXT_PATH + AUTH_PATH + "/signup", methods=["POST"])
 def register():
     try:
         response = requests.post(AUTH_SERVICE_URL+'register', json=request.json)
