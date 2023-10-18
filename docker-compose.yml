@@ -36,6 +36,8 @@ services:
     build:
       context: ./taskmanager
       dockerfile: Dockerfile
+    volumes:
+      - video_files:/app/video_files
     depends_on:
       - redis
       - postgres
@@ -44,6 +46,8 @@ services:
     build:
       context: ./fileconversor
       dockerfile: Dockerfile
+    volumes:
+      - video_files:/app/video_files
     depends_on:
       - redis
       - postgres
@@ -59,3 +63,4 @@ services:
 
 volumes:
   pgdata:
+  video_files:
