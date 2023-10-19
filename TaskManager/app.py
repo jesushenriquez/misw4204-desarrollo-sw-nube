@@ -93,6 +93,24 @@ def getTask(task_id):
         return jsonify(task_dict), 200
     else:
         return "Task not found", 404
+    
+@app.route(CONTEXT_PATH + TASKS_PATH + "/<task_id>", methods=["DELETE"])
+def deleteTask(task_id):
+    try:
+
+        cursor = db_connection.cursor()
+
+        delete_query = "DELETE FROM tasks WHERE id = %s"
+        cursor.execute(delete_query, (task_id,))
+
+        db_connection.commit()
+        cursor.close()
+
+        return jsonify({"message": "Task eliminado correctamente"}), 200
+
+    except Exception as e:
+        return jsonify({"message": "Error al eliminar task", "error": str(e)}), 500
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
