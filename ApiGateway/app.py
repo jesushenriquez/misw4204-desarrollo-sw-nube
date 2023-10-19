@@ -15,8 +15,9 @@ celery_app = Celery("apigateway", broker="redis://redis:6379/0")
 app = Flask(__name__)
 app.logger.setLevel(logging.INFO)
 
-INTEGRITY_MANAGER_SERVICE_URL = "http://integrity-manager:6000/"
-INFORMACION_HV_BUSCADOR_URL = "http://informacion-hv-buscadores:5000/"
+# INTEGRITY_MANAGER_SERVICE_URL = "http://integrity-manager:6000/"
+# INFORMACION_HV_BUSCADOR_URL = "http://informacion-hv-buscadores:5000/"
+TASK_SERVICE_URL = "http://task-manager:5000/"
 AUTH_SERVICE_URL = "http://auth-component:8080/"
 
 CONTEXT_PATH= "/api"
@@ -39,6 +40,7 @@ def login():
 @app.route(CONTEXT_PATH + AUTH_PATH + "/signup", methods=["POST"])
 def register():
     try:
+
         response = requests.post(AUTH_SERVICE_URL+'register', json=request.json)
         logging.info("Register: %s", response.json())
         return response.content, response.status_code
@@ -48,7 +50,19 @@ def register():
 
 @app.route(CONTEXT_PATH + TASKS_PATH, methods=["GET"])
 def getTasks():
-    return "Hello from" + CONTEXT_PATH + TASKS_PATH
+    try:
+        # jwt_token = request.headers.get('Authorization')
+        # logging.info("jwt_token:", jwt_token)
+        response_tasks = requests.get(TASK_SERVICE_URL+ CONTEXT_PATH + TASKS_PATH, json=request.json)
+        logging.info("response_tasks:", response_tasks)
+        return response_tasks.content, response_tasks.status_code
+    
+        # response = requests.get(AUTH_SERVICE_URL+'tasks', json=request.json)
+        # logging.info("Get tasks: %s", response.json())
+        # return response.content, response.status_code
+    except Exception as e:
+        logging.error("Error get tasks: %s", e)
+        return str(e), 500
 
 @app.route(CONTEXT_PATH + TASKS_PATH, methods=["POST"])
 def newTasks():
