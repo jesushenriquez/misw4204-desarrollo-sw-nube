@@ -12,7 +12,6 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./AuthComponent/schema.sql:/docker-entrypoint-initdb.d/init.sql
-      - ./TaksManager/schema.sql:/docker-entrypoint-initdb.d/init2.sql
 
   redis:
     image: "redis:alpine"

@@ -11,4 +11,4 @@ CREATE TABLE tasks (
 );
 
 ALTER TABLE tasks
-ADD COLUMN user_id INT REFERENCES users(id);
+ADD COLUMN user_id SERIAL REFERENCES users(id);
