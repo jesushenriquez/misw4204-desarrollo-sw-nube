@@ -70,9 +70,23 @@ def getTasks():
 
     return jsonify({"tasks": task_list}), 200
 
-@app.route(CONTEXT_PATH + TASKS_PATH, methods=["DELETE"])
-def deleteTasks():
-    return "Hello from" + CONTEXT_PATH + TASKS_PATH, 200
+@app.route(CONTEXT_PATH + TASKS_PATH + "/<task_id>", methods=["DELETE"])
+def deleteTask(task_id):
+    try:
+
+        cursor = db_connection.cursor()
+
+        delete_query = "DELETE FROM tasks WHERE id = %s"
+        cursor.execute(delete_query, (task_id,))
+
+        db_connection.commit()
+        cursor.close()
+
+        return jsonify({"message": "Task eliminado correctamente"}), 200
+
+    except Exception as e:
+        return jsonify({"message": "Error al eliminar task", "error": str(e)}), 500
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)

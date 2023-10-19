@@ -74,9 +74,15 @@ def getTask(task_id):
 
 @app.route(CONTEXT_PATH + TASKS_PATH + "/<task_id>", methods=["DELETE"])
 def deleteTask(task_id):
-    return "Hello from" + CONTEXT_PATH + TASKS_PATH
+    try:
 
-
+        response_tasks = requests.delete(TASK_SERVICE_URL+ CONTEXT_PATH + TASKS_PATH, json=request.json)
+        logging.info("response_tasks:", response_tasks)
+        return response_tasks.content, response_tasks.status_code
+    
+    except Exception as e:
+        logging.error("Error get tasks: %s", e)
+        return str(e), 500
 
 if __name__ == "__main__":
     print("Starting apigateway...")
