@@ -24,6 +24,9 @@ def hello():
 def getTasks():
     return "Hello from" + CONTEXT_PATH + TASKS_PATH, 200
 
+@app.route(CONTEXT_PATH + TASKS_PATH, methods=["DELETE"])
+def deleteTasks():
+    return "Hello from" + CONTEXT_PATH + TASKS_PATH, 200
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
