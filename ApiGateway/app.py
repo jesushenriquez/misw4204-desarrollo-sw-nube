@@ -21,81 +21,10 @@ AUTH_SERVICE_URL = "http://auth-component:8080/"
 
 CONTEXT_PATH= "/api"
 AUTH_PATH= "/auth"
-
+TASKS_PATH= "/tasks"
 @app.route("/")
 def hello():
     return "Hello from apigateway v6!"
-
-
-
-@app.route("/cifrarinformacion", methods=["POST"])
-def cifrarinformacion():
-    try:
-        jwt_token = request.headers.get('Authorization')
-        response = requests.post(
-            INTEGRITY_MANAGER_SERVICE_URL + 'cifrarinformacion',
-            json=request.json,
-            headers={'Authorization': jwt_token}
-        )
-        logging.info("Información cifrada: %s", response.json())
-
-        if response.status_code == 200:
-            if response.text:  # Verificar si la respuesta no está vacía
-                data = response.json()
-                return jsonify(data), 200
-            else:
-                logging.error("Respuesta vacía del servicio externo")
-                return jsonify({'error': 'Respuesta vacía del servicio externo'}), 500
-        else:
-            logging.error("Error: %s", response.json())
-            return jsonify({'error': 'Error en el servicio de Integrity Manager'}), response.status_code
-
-    except Exception as e:
-        logging.error("Error: %s", e)
-        return str(e), 500
-
-@app.route("/getsecret", methods=["POST"])
-def getsecret():
-    try:
-        jwt_token = request.headers.get('Authorization')
-        response = requests.post(
-            INTEGRITY_MANAGER_SERVICE_URL + 'getsecret',
-            json=request.json,
-            headers={'Authorization': jwt_token}
-        )
-        logging.info("secret: %s", response.json())
-
-        if response.status_code == 200:
-            data = response.json()
-            logging.info("Secret: %s", data)
-            return jsonify(data), 200
-        else:
-            logging.error("Error getsecret: %s", response.json())
-            return jsonify({'error': 'Error en el servicio de Integrity Manager'}), response.status_code
-    except Exception as e:
-        logging.error("Error getsecret: %s", e)
-        return str(e), 500
-
-@app.route("/getInformacionBuscador", methods=["GET"])
-def getInformacionBuscador():
-    try:
-        jwt_token = request.headers.get('Authorization')
-        logging.info("jwt_token:", jwt_token)
-        response_info_buscador = requests.get(INFORMACION_HV_BUSCADOR_URL+'getInformacionBuscador')
-        logging.info("response_info_buscador:", response_info_buscador)
-        response = requests.post(
-            INTEGRITY_MANAGER_SERVICE_URL + 'cifrarinformacion',
-            json=response_info_buscador.json(),
-            headers={'Authorization': jwt_token}
-        )
-        logging.info("Información cifrada buscador: %s", response)
-        response_data = {
-            "data": response.text
-        }
-        return response_data, response.status_code
-    except Exception as e:
-        logging.error("Error getInformacionBuscador: %s", e)
-        return str(e), 500
 
 @app.route(CONTEXT_PATH + AUTH_PATH + "/login", methods=["POST"])
 def login():
@@ -116,6 +45,24 @@ def register():
     except Exception as e:
         logging.error("Error register: %s", e)
         return str(e), 500
+
+@app.route(CONTEXT_PATH + TASKS_PATH, methods=["GET"])
+def getTasks():
+    return "Hello from" + CONTEXT_PATH + TASKS_PATH
+
+@app.route(CONTEXT_PATH + TASKS_PATH, methods=["POST"])
+def newTasks():
+    return "Hello from" + CONTEXT_PATH + TASKS_PATH
+
+@app.route(CONTEXT_PATH + TASKS_PATH + "/<task_id>", methods=["GET"])
+def getTask(task_id):
+    return "Hello from" + CONTEXT_PATH + TASKS_PATH
+
+@app.route(CONTEXT_PATH + TASKS_PATH + "/<task_id>", methods=["DELETE"])
+def deleteTask(task_id):
+    return "Hello from" + CONTEXT_PATH + TASKS_PATH
+
+
 
 if __name__ == "__main__":
     print("Starting apigateway...")

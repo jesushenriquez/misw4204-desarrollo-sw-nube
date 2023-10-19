@@ -12,6 +12,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./AuthComponent/schema.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./TaksManager/schema.sql:/docker-entrypoint-initdb.d/init2.sql
 
   redis:
     image: "redis:alpine"
@@ -36,6 +37,8 @@ services:
     build:
       context: ./taskmanager
       dockerfile: Dockerfile
+    volumes:
+      - video_files:/app/video_files
     depends_on:
       - redis
       - postgres
@@ -44,6 +47,8 @@ services:
     build:
       context: ./fileconversor
       dockerfile: Dockerfile
+    volumes:
+      - video_files:/app/video_files
     depends_on:
       - redis
       - postgres
@@ -59,3 +64,4 @@ services:
 
 volumes:
   pgdata:
+  video_files:
