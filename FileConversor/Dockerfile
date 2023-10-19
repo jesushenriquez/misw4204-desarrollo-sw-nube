@@ -1,6 +1,13 @@
 # Use an official Python runtime as the base image
 FROM python:3.9-slim
 
+
+RUN apt-get update -y && apt-get install -y \
+    libx264-dev \
+    libvpx-dev \
+    libxvidcore-dev \
+    libvorbis-dev
+
 # Set the working directory in the container to /app
 WORKDIR /app
 
