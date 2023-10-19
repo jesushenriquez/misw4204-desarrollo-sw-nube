@@ -51,15 +51,9 @@ def register():
 @app.route(CONTEXT_PATH + TASKS_PATH, methods=["GET"])
 def getTasks():
     try:
-        # jwt_token = request.headers.get('Authorization')
-        # logging.info("jwt_token:", jwt_token)
         response_tasks = requests.get(TASK_SERVICE_URL+ CONTEXT_PATH + TASKS_PATH, json=request.json)
         logging.info("response_tasks:", response_tasks)
         return response_tasks.content, response_tasks.status_code
-    
-        # response = requests.get(AUTH_SERVICE_URL+'tasks', json=request.json)
-        # logging.info("Get tasks: %s", response.json())
-        # return response.content, response.status_code
     except Exception as e:
         logging.error("Error get tasks: %s", e)
         return str(e), 500
@@ -70,7 +64,14 @@ def newTasks():
 
 @app.route(CONTEXT_PATH + TASKS_PATH + "/<task_id>", methods=["GET"])
 def getTask(task_id):
-    return "Hello from" + CONTEXT_PATH + TASKS_PATH
+    try:
+        response_task = requests.get(TASK_SERVICE_URL+ CONTEXT_PATH + TASKS_PATH + "/" + task_id, json=request.json)
+        logging.info("response_task:", response_task)
+        return response_task.content, response_task.status_code
+    except Exception as e:
+        logging.error("Error get tasks: %s", e)
+        return str(e), 500
+    # return "Hello from" + CONTEXT_PATH + TASKS_PATH
 
 @app.route(CONTEXT_PATH + TASKS_PATH + "/<task_id>", methods=["DELETE"])
 def deleteTask(task_id):
