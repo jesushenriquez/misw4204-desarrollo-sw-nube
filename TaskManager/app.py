@@ -1,15 +1,28 @@
 import datetime
-
+import logging
 from flask import Flask, request, jsonify
 import requests
 from celery import Celery
 import time
 import psycopg2 
+from flask_jwt_extended import JWTManager,create_access_token
+
+app = Flask(__name__)
+app.config['JWT_SECRET_KEY'] = '43141-123-csdf-1-xcvsdf-12asdf-1234%$'
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = False
+app.config['JWT_AlGORITHM'] = 'HS256'
+jwt_manager = JWTManager(app)
+
+logging.basicConfig(
+    filename="app.log",
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+)
 
 # Configura la conexión a la base de datos PostgreSQL
 db_connection = psycopg2.connect(
-    host="localhost",
-    port=5432,  # El puerto predeterminado de PostgreSQL
+    host="postgres",
+    port=5432,
     user="admin",
     password="password",
     database="cloud_db"
@@ -23,7 +36,6 @@ MATCHING_SERVICE_URL = "http://motor-emparejamiento:6000/matching"
 CIRCUIT_BREAKER_STATE = "closed"
 
 CONTEXT_PATH= "/api"
-AUTH_PATH= "/auth"
 TASKS_PATH= "/tasks"
 
 @app.route("/")
