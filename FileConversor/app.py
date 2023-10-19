@@ -12,27 +12,31 @@ app.conf.task_default_queue = "task_queue"
 
 @app.task
 def convert(data):
-    path = data.get('file_path')
-    name = data.get('file_name')
-    id = data.get('id')
+    path = data.get('file_path', 'video_files/in/video.mp4')
+    name = data.get('file_name', 'video.mp4')
+    id = data.get('id', 1) 
+    format = data.get('format', 'mp4')
     creation_date = datetime.datetime.now()
+    convertir_video(path, f'video_files/out/{name}', format)
     print("------------------------")
     print(data)
     print("------------------------")
-"""
+def record(id, path, start_date,end_date, format = 'mp4'):
     with psycopg2.connect(
             dbname="security_db", user="admin", password="password", host="postgres"
     ) as conn:
+        """
+        
+
+        """
         with conn.cursor() as cur:
             cur.execute(
-"""
-"""                INSERT INTO employer_audit (employer_username, candidate, data_extraction_date, creation_date)
-                VALUES (%s, %s, %s, %s);
-"""
-""",
-                (employer_username, candidate, data_extraction_date, creation_date),
+
+                """INSERT INTO process_video (video_id, file_path, start_date, end_date, status) VALUES (%s, %s, %s, %s, %s);""",
+                (id, path, start_date,end_date, 'success'),
+                
             )
-"""
+
 
 class FileRetriever:
     def __init__(self, path, id):
@@ -48,6 +52,7 @@ class FileRetriever:
 
 def convertir_video(input_path, output_path, formato_salida='mp4'):
     try:
+        startTime = datetime.datetime.now()
         video = VideoFileClip(input_path)
         
         if formato_salida == 'mp4':
@@ -65,10 +70,13 @@ def convertir_video(input_path, output_path, formato_salida='mp4'):
             return
 
         print(f'Video convertido exitosamente a {formato_salida}')
+        endTime = datetime.datetime.now()
+        milliseconds = (endTime - startTime).total_seconds() * 1000
+        print(f'Tiempo de conversión: {milliseconds} ms')
     except Exception as e:
         print(f'Error al convertir el video: {str(e)}')
 
 if __name__ == '__main__':
     formats = ['mp4', 'webm', 'avi', 'mpeg', 'wmv']
     for format in formats:
-        convertir_video('video.mp4', f'video_convertido.{format}', format)
+        convertir_video('video_files/in/video.mp4', f'video_files/out/video_convertido.{format}', format)
