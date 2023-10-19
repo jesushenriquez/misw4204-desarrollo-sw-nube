@@ -12,53 +12,17 @@ app = Flask(__name__)
 MATCHING_SERVICE_URL = "http://motor-emparejamiento:6000/matching"
 CIRCUIT_BREAKER_STATE = "closed"
 
+CONTEXT_PATH= "/api"
+AUTH_PATH= "/auth"
+TASKS_PATH= "/tasks"
 
 @app.route("/")
 def hello():
-    return "Hello from informacionHvBuscadores!"
+    return "Hello from tasks!"
 
-
-@app.route("/getInformacionBuscador", methods=["GET"])
-def getInformacionBuscardo():
-    candidate_json = {
-        "name": "John Smith",
-        "email": "john.smith@example.com",
-        "phone": "+1 (123) 456-7890",
-        "linkedin": "https://www.linkedin.com/in/johnsmith",
-        "github": "https://github.com/johnsmith",
-        "summary": "Experienced software developer with a passion for creating efficient and scalable solutions. Strong background in web development and a love for problem-solving.",
-        "skills": [
-            "JavaScript"
-        ],
-        "experience": [
-            {
-                "position": "Senior Software Engineer",
-                "company": "TechCo Inc.",
-                "location": "San Francisco, CA",
-                "startDate": "January 2018",
-                "endDate": "Present",
-                "description": "Lead development of web applications, collaborated with cross-functional teams, and mentored junior developers."
-            }
-        ],
-        "education": [
-            {
-                "degree": "Bachelor of Science in Computer Science",
-                "school": "University of Engineering",
-                "location": "Los Angeles, CA",
-                "graduationDate": "May 2015"
-            }
-        ]
-    }
-    auditInformation = {
-        "employer_username": "exampleUsername",
-        "candidate": candidate_json.get("name"),
-        "data_extraction_date": datetime.datetime.now()
-    }
-    celery_app.send_task(
-        "app.auditEvent", args=[auditInformation], queue="audit_queue"
-    )
-
-    return candidate_json, 200
+@app.route(CONTEXT_PATH + TASKS_PATH, methods=["GET"])
+def getTasks():
+    return "Hello from" + CONTEXT_PATH + TASKS_PATH, 200
 
 
 if __name__ == "__main__":
