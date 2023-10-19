@@ -76,9 +76,9 @@ def getTask(task_id):
 def deleteTask(task_id):
     try:
 
-        response_tasks = requests.delete(TASK_SERVICE_URL+ CONTEXT_PATH + TASKS_PATH, json=request.json)
-        logging.info("response_tasks:", response_tasks)
-        return response_tasks.content, response_tasks.status_code
+        response_task = requests.delete(TASK_SERVICE_URL+ CONTEXT_PATH + TASKS_PATH + "/" + task_id, json=request.json)
+        logging.info("response_tasks:", response_task)
+        return response_task.content, response_task.status_code
     
     except Exception as e:
         logging.error("Error get tasks: %s", e)
