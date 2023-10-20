@@ -60,7 +60,40 @@ def getTasks():
 
 @app.route(CONTEXT_PATH + TASKS_PATH, methods=["POST"])
 def newTasks():
-    return "Hello from" + CONTEXT_PATH + TASKS_PATH
+    # Asegúrate de que se haya proporcionado el encabezado de autorización
+    auth_header = request.headers.get('Authorization')
+    if auth_header is None or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'Authorization header is missing or invalid'}), 401
+
+    # Extrae el token del encabezado de autorización
+    token = auth_header.split(' ')[1]
+
+    # Obtiene el archivo de video desde la solicitud
+    video_file = request.files.get('fileName')
+
+    if video_file is None:
+        return jsonify({'error': 'No video file provided'}), 400
+
+    # Datos adicionales en el cuerpo de la solicitud
+    new_format = request.form.get('newFormat')
+
+    # Define la URL del endpoint de carga de archivos
+    UPLOAD_URL = "http://task-manager:5000/api/tasks"
+
+    # Define los datos para la solicitud
+    files = {'fileName': (video_file.filename, video_file, 'multipart/form-data')}
+    data = {'newFormat': new_format}
+
+    # Define el encabezado de autorización
+    headers = {'Authorization': auth_header}
+
+    # Realiza la solicitud POST al endpoint de carga
+    response = requests.post(UPLOAD_URL, files=files, data=data, headers=headers)
+
+    if response.status_code == 200:
+        return "File uploaded successfully"
+    else:
+        return "Failed to upload file"
 
 @app.route(CONTEXT_PATH + TASKS_PATH + "/<task_id>", methods=["GET"])
 def getTask(task_id):
