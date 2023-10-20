@@ -100,17 +100,22 @@ def deleteTask(task_id):
 
         cursor = db_connection.cursor()
 
-        delete_query = "DELETE FROM tasks WHERE id = %s"
-        cursor.execute(delete_query, (task_id,))
+        check_query = "SELECT id FROM tasks WHERE id = %s"
+        cursor.execute(check_query, (task_id,))
+        existing_task = cursor.fetchone()
 
-        db_connection.commit()
-        cursor.close()
-
-        return jsonify({"message": "Task eliminado correctamente"}), 200
+        if existing_task:
+            delete_query = "DELETE FROM tasks WHERE id = %s"
+            cursor.execute(delete_query, (task_id,))
+            db_connection.commit()
+            cursor.close()
+            return jsonify({"message": "Task eliminado correctamente"}), 200
+        else:
+            cursor.close()
+            return jsonify({"message": "Task NO existe"}), 404
 
     except Exception as e:
         return jsonify({"message": "Error al eliminar task", "error": str(e)}), 500
-
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
