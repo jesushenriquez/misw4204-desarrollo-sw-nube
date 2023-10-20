@@ -3,7 +3,7 @@ import os
 import uuid
 
 from flask import Flask, request, jsonify
-import datetime
+#import datetime
 import logging
 import requests
 from celery import Celery
@@ -160,26 +160,39 @@ def create_task():
 
     # Genera un nombre de archivo único (UUID) con la extensión del archivo original
     file_extension = os.path.splitext(video_file.filename)[-1]
+    source_format = file_extension[1:]
     source_uuid = str(uuid.uuid4())
     app.logger.error(f'Info: {source_uuid}')
     unique_filename = source_uuid + file_extension
 
+    target_format = request.form.get('newFormat').lower()
+
+    allowed_formats = {'mp4', 'webm', 'avi', 'mpeg', 'wmv'}
+
+    if source_format == target_format:
+        return jsonify({'error': 'Source and target formats cannot be the same'}), 400
+
+    # Valida que los formatos estén en la lista de formatos permitidos
+    if source_format not in allowed_formats or target_format not in allowed_formats:
+        return jsonify({'error': 'Invalid source or target format'}), 400
+
     # Ruta donde se almacenarán los archivos de video
-    video_folder = '/app/video_files'
+    video_folder_path = '/app/video_files'
+    source_video_folder_path = video_folder_path + "/in"
 
     # Asegúrate de que la carpeta de destino exista
-    os.makedirs(video_folder, exist_ok=True)
+    os.makedirs(source_video_folder_path, exist_ok=True)
 
     # Guarda el archivo en la carpeta de destino con el nombre único
-    video_file.save(os.path.join(video_folder, unique_filename))
+    video_file.save(os.path.join(source_video_folder_path, unique_filename))
 
     try:
         # Crea una nueva tarea en la base de datos
         new_task = Tasks(
-            source_uuid=f"{{{source_uuid}}}",
+            source_uuid=source_uuid,
             source_name=video_file.filename,
-            source_format=file_extension,
-            target_format=request.form.get('newFormat'),
+            source_format=source_format.lower(),
+            target_format=target_format.lower(),
             create_datetime=datetime.now(),
             status='uploaded'
             #user_id=1
@@ -187,6 +200,18 @@ def create_task():
 
         db.session.add(new_task)
         db.session.commit()
+
+        # Enviar evento a file conversor
+        eventData = {
+            "uuid": source_uuid,
+            "file_path": source_video_folder_path + "/" + unique_filename,
+            "file_name": source_uuid + "." + target_format.lower(),
+            "format": target_format.lower()
+        }
+
+        celery_app.send_task(
+            "app.convert", args=[eventData], queue="task_queue"
+        )
 
         return jsonify({'message': 'Video uploaded successfully', 'filename': unique_filename}), 200
 

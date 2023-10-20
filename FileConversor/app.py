@@ -1,3 +1,5 @@
+import os
+
 import psycopg2
 import datetime
 from celery import Celery
@@ -14,7 +16,7 @@ app.conf.task_default_queue = "task_queue"
 def convert(data):
     path = data.get('file_path', 'video_files/in/video.mp4')
     name = data.get('file_name', 'video.mp4')
-    id = data.get('id', 1) 
+    uuid = data.get('uuid', 1)
     format = data.get('format', 'mp4')
     creation_date = datetime.datetime.now()
     convertir_video(path, f'video_files/out/{name}', format)
@@ -52,6 +54,11 @@ class FileRetriever:
 
 def convertir_video(input_path, output_path, formato_salida='mp4'):
     try:
+        out_path = "/app/video_files/out/"
+        if not os.path.exists(out_path):
+            # Si no existe, crea la carpeta
+            os.makedirs(out_path)
+
         startTime = datetime.datetime.now()
         video = VideoFileClip(input_path)
         

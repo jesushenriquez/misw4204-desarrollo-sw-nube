@@ -10,6 +10,3 @@ CREATE TABLE tasks (
     status varchar(20),
     user_id INT REFERENCES users(id)
 );
-
-ALTER TABLE tasks
-ADD COLUMN user_id INT REFERENCES users(id);
