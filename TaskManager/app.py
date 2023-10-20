@@ -3,9 +3,34 @@ import os
 import uuid
 
 from flask import Flask, request, jsonify
+import datetime
+import logging
 import requests
 from celery import Celery
 import time
+import psycopg2
+from flask_jwt_extended import JWTManager,create_access_token
+
+app = Flask(__name__)
+app.config['JWT_SECRET_KEY'] = '43141-123-csdf-1-xcvsdf-12asdf-1234%$'
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = False
+app.config['JWT_AlGORITHM'] = 'HS256'
+jwt_manager = JWTManager(app)
+
+logging.basicConfig(
+    filename="app.log",
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+)
+
+# Configura la conexión a la base de datos PostgreSQL
+db_connection = psycopg2.connect(
+    host="postgres",
+    port=5432,
+    user="admin",
+    password="password",
+    database="cloud_db"
+)
 
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import IntegrityError
@@ -21,6 +46,8 @@ db = SQLAlchemy(app)
 MATCHING_SERVICE_URL = "http://motor-emparejamiento:6000/matching"
 CIRCUIT_BREAKER_STATE = "closed"
 
+CONTEXT_PATH= "/api"
+TASKS_PATH= "/tasks"
 
 class Tasks(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -36,8 +63,82 @@ class Tasks(db.Model):
 
 @app.route("/")
 def hello():
-    return "Hello from informacionHvBuscadores!"
+    return "Hello from tasks!"
 
+@app.route(CONTEXT_PATH + TASKS_PATH, methods=["GET"])
+def getTasks():
+
+    cursor = db_connection.cursor()
+    cursor.execute("SELECT * FROM tasks")
+
+    tasks = cursor.fetchall()
+
+    cursor.close()
+
+    # Convierte los resultados en una lista de diccionarios
+    task_list = []
+    for task in tasks:
+        task_dict = {
+            'id': task[0],
+            'source_uuid': task[1],
+            'source_name': task[2],
+            'source_format': task[3],
+            'target_format': task[4],
+            'create_datetime': task[5],
+            'start_convert': task[6],
+            'end_convert': task[7],
+            'status': task[8]
+        }
+        task_list.append(task_dict)
+
+    return jsonify({"tasks": task_list}), 200
+
+@app.route(CONTEXT_PATH + TASKS_PATH + "/<task_id>", methods=["GET"])
+def getTask(task_id):
+
+    cursor = db_connection.cursor()
+    cursor.execute("SELECT * FROM tasks WHERE id = %s", (task_id,))
+    task = cursor.fetchone()
+    cursor.close()
+
+    if task is not None:
+        task_dict = {
+            'id': task[0],
+            'source_uuid': task[1],
+            'source_name': task[2],
+            'source_format': task[3],
+            'target_format': task[4],
+            'create_datetime': task[5],
+            'start_convert': task[6],
+            'end_convert': task[7],
+            'status': task[8]
+        }
+        return jsonify(task_dict), 200
+    else:
+        return "Task not found", 404
+
+@app.route(CONTEXT_PATH + TASKS_PATH + "/<task_id>", methods=["DELETE"])
+def deleteTask(task_id):
+    try:
+
+        cursor = db_connection.cursor()
+
+        check_query = "SELECT id FROM tasks WHERE id = %s"
+        cursor.execute(check_query, (task_id,))
+        existing_task = cursor.fetchone()
+
+        if existing_task:
+            delete_query = "DELETE FROM tasks WHERE id = %s"
+            cursor.execute(delete_query, (task_id,))
+            db_connection.commit()
+            cursor.close()
+            return jsonify({"message": "Task eliminado correctamente"}), 200
+        else:
+            cursor.close()
+            return jsonify({"message": "Task NO existe"}), 404
+
+    except Exception as e:
+        return jsonify({"message": "Error al eliminar task", "error": str(e)}), 500
 
 @app.route('/api/tasks', methods=['POST'])
 def create_task():
@@ -97,6 +198,7 @@ def create_task():
     except Exception as e:
         app.logger.error(f'Error: {str(e)}')
         return jsonify({'error': 'Failed to upload video: ' + str(e)}), 500
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
