@@ -70,6 +70,30 @@ def getTasks():
 
     return jsonify({"tasks": task_list}), 200
 
+@app.route(CONTEXT_PATH + TASKS_PATH + "/<task_id>", methods=["GET"])
+def getTask(task_id):
+
+    cursor = db_connection.cursor()
+    cursor.execute("SELECT * FROM tasks WHERE id = %s", (task_id,))
+    task = cursor.fetchone()
+    cursor.close()
+
+    if task is not None:
+        task_dict = {
+            'id': task[0],
+            'source_uuid': task[1],
+            'source_name': task[2],
+            'source_format': task[3],
+            'target_format': task[4],
+            'create_datetime': task[5],
+            'start_convert': task[6],
+            'end_convert': task[7],
+            'status': task[8]
+        }
+        return jsonify(task_dict), 200
+    else:
+        return "Task not found", 404
+    
 @app.route(CONTEXT_PATH + TASKS_PATH + "/<task_id>", methods=["DELETE"])
 def deleteTask(task_id):
     try:
