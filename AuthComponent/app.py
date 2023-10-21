@@ -1,14 +1,8 @@
 import hashlib
 import logging
 import psycopg2
-from flask_jwt_extended import JWTManager
-
-
+from flask_jwt_extended import JWTManager, create_access_token
 from flask import Flask, request, jsonify
-from flask_jwt_extended import create_access_token
-
-from exceptions import UsuarioNoExiste, UsuarioYaExiste
-
 
 app = Flask(__name__)
 app.config['JWT_SECRET_KEY'] = '43141-123-csdf-1-xcvsdf-12asdf-1234%$'
