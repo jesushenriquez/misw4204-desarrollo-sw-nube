@@ -50,6 +50,10 @@ def register():
 
 @app.route(CONTEXT_PATH + TASKS_PATH, methods=["GET"])
 def getTasks():
+    auth_header = request.headers.get('Authorization')
+    if auth_header is None or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'Authorization header is missing or invalid'}), 401
+    
     try:
         response_tasks = requests.get(TASK_SERVICE_URL+ CONTEXT_PATH + TASKS_PATH, json=request.json)
         logging.info("response_tasks:", response_tasks)
@@ -97,6 +101,9 @@ def newTasks():
 
 @app.route(CONTEXT_PATH + TASKS_PATH + "/<task_id>", methods=["GET"])
 def getTask(task_id):
+    auth_header = request.headers.get('Authorization')
+    if auth_header is None or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'Authorization header is missing or invalid'}), 401
     try:
         response_task = requests.get(TASK_SERVICE_URL+ CONTEXT_PATH + TASKS_PATH + "/" + task_id, json=request.json)
         logging.info("response_task:", response_task)
@@ -108,6 +115,9 @@ def getTask(task_id):
 
 @app.route(CONTEXT_PATH + TASKS_PATH + "/<task_id>", methods=["DELETE"])
 def deleteTask(task_id):
+    auth_header = request.headers.get('Authorization')
+    if auth_header is None or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'Authorization header is missing or invalid'}), 401
     try:
         response_task = requests.delete(TASK_SERVICE_URL+ CONTEXT_PATH + TASKS_PATH + "/" + task_id, json=request.json)
         logging.info("response_tasks:", response_task)
