@@ -2,3 +2,4 @@ celery[redis]
 psycopg2-binary
 requests
 moviepy
+sqlalchemy==1.4.40

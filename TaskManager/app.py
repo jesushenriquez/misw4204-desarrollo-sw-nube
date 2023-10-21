@@ -35,7 +35,9 @@ db_connection = psycopg2.connect(
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import IntegrityError
 
-celery_app = Celery("informacionHvBuscadores", broker="redis://redis:6379/0")
+celery_app = Celery("taskManager", broker="redis://redis:6379/0", backend="redis://redis:6379/0")
+
+celery_app.conf.task_default_queue = "converted_queue"
 
 app = Flask(__name__)
 app.debug = True
