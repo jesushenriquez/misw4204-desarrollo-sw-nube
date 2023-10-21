@@ -215,7 +215,15 @@ def create_task():
             "app.convert", args=[eventData], queue="task_queue"
         )
 
-        return jsonify({'message': 'Video uploaded successfully', 'filename': unique_filename}), 200
+        #return jsonify({'message': 'Video uploaded successfully', 'filename': unique_filename}), 200
+
+        return jsonify({
+            'message': 'Video uploaded successfully',
+            'task_id': new_task.id,
+            'source_uuid': source_uuid,
+            'source_format': source_format,
+            'target_format': target_format
+        }), 200
 
     except IntegrityError as e:
         db.session.rollback()
