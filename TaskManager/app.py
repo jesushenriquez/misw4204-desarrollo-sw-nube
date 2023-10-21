@@ -2,7 +2,7 @@ from datetime import datetime
 import os
 import uuid
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_file
 #import datetime
 import logging
 import requests
@@ -226,6 +226,19 @@ def create_task():
         app.logger.error(f'Error: {str(e)}')
         return jsonify({'error': 'Failed to upload video: ' + str(e)}), 500
 
+@app.route(CONTEXT_PATH + TASKS_PATH + '/file/<filename>', methods=['GET'])
+def download_file(filename):
+    in_path = "/app/video_files/in/"
+    out_path = "/app/video_files/out/"
+
+    if os.path.exists(out_path + "/" + filename):
+        filepath = out_path + "/" + filename
+    elif os.path.exists(in_path + "/" + filename):
+        filepath = in_path + "/" + filename
+    else:
+        return jsonify({"message": "Archivo no encontrado"}), 404
+
+    return send_file(filepath, as_attachment=True, download_name=filename, mimetype='application/octet-stream')
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)

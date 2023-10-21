@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, Response
 import requests
 from celery import Celery
 import logging
@@ -125,6 +125,37 @@ def deleteTask(task_id):
     except Exception as e:
         logging.error("Error delete tasks: %s", e)
         return str(e), 500
+
+@app.route(CONTEXT_PATH + TASKS_PATH + '/file/<filename>', methods=['GET'])
+def get_file(filename):
+    auth_header = request.headers.get('Authorization')
+    if auth_header is None or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'Authorization header is missing or invalid'}), 401
+
+    try:
+        response = requests.get(TASK_SERVICE_URL+ CONTEXT_PATH + TASKS_PATH + "/file" + "/" + filename, json=request.json)
+
+        # Verifica que la solicitud sea exitosa (código de respuesta 200)
+        if response.status_code == 200:
+            file_content = response.content
+
+            headers = {
+                'Content-Type': 'application/octet-stream',
+                'Content-Disposition': f'attachment; filename={filename}'
+            }
+
+            # Devuelve el contenido de la respuesta con las cabeceras adecuadas
+            return Response(file_content, headers=headers)
+        else:
+            response_json = {
+                "message" : "Error al descargar el archivo"
+            }
+            return jsonify(response_json), 404
+
+    except Exception as e:
+        logging.error("Error delete tasks: %s", e)
+        return str(e), 500
+
 
 if __name__ == "__main__":
     print("Starting apigateway...")
