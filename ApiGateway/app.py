@@ -95,7 +95,7 @@ def newTasks():
     response = requests.post(UPLOAD_URL, files=files, data=data, headers=headers)
 
     if response.status_code == 200:
-        return "File uploaded successfully"
+        return response.json(), response.status_code
     else:
         return "Failed to upload file"
 
