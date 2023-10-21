@@ -128,6 +128,10 @@ def deleteTask(task_id):
 
 @app.route(CONTEXT_PATH + TASKS_PATH + '/file/<filename>', methods=['GET'])
 def get_file(filename):
+    auth_header = request.headers.get('Authorization')
+    if auth_header is None or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'Authorization header is missing or invalid'}), 401
+
     try:
         response = requests.get(TASK_SERVICE_URL+ CONTEXT_PATH + TASKS_PATH + "/file" + "/" + filename, json=request.json)
 
