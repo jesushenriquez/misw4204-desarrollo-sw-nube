@@ -12,6 +12,14 @@ app = Celery(
 
 app.conf.task_default_queue = "task_queue"
 
+# Configura la conexión a la base de datos PostgreSQL
+db_connection = psycopg2.connect(
+    host="postgres",
+    port=5432,
+    user="admin",
+    password="password",
+    database="cloud_db"
+)
 
 @app.task
 def convert(data):
@@ -50,10 +58,36 @@ def convertir_video(uuid,input_path, output_path, formato_salida='mp4'):
         convert_video(output_path, formato_salida, video)
         print(f'Video convertido exitosamente a {formato_salida}')
         endTime = calc_time(startTime)
-        send_convert_event(uuid, startTime, endTime)
+        update_task(uuid, startTime, endTime, 'success')
     except Exception as e:
         print(f'Error al convertir el video: {str(e)}')
-        send_convert_event(uuid, None, None, "failure")
+        update_task(uuid, None, None, 'failure')
+
+def update_task(uuid, startTime, endTime, status):
+    print(f'Recibiendo evento de actualización')
+    # Realiza las operaciones de actualización en la base de datos
+    db_cursor = db_connection.cursor()
+    try:
+        if status == 'success':
+            start_convert = startTime
+            end_convert = endTime
+
+            # Realiza la actualización en la base de datos
+            update_query = "UPDATE tasks SET start_convert = %s, end_convert = %s, status = %s WHERE source_uuid = %s"
+            db_cursor.execute(update_query, (start_convert, end_convert, 'disponible', uuid))
+        elif status == 'failure':
+            # Actualiza el estado a "failed"
+            update_query = "UPDATE tasks SET status = %s WHERE source_uuid = %s"
+            db_cursor.execute(update_query, ('failed', uuid))
+        else:
+            raise AssertionError("Invalid status")
+
+        db_connection.commit()
+    except Exception as e:
+        db_connection.rollback()
+        print(f'Error: {str(e)}')
+    finally:
+        db_cursor.close()
 
 def convert_video(output_path, formato_salida, video):
     if formato_salida == 'mp4':
@@ -72,15 +106,17 @@ def convert_video(output_path, formato_salida, video):
         
 
 def send_convert_event(uuid, startTime, endTime,state="success"):
+    print(f'Enviando evento de conversión de video: {uuid}')
     eventData = {
             "uuid": uuid,
             "start_convert": startTime,
             "end_convert": endTime,
-            "state": state
+            "status": state
         }
     app.send_task(
-            "app.update_task", args=[eventData], queue="converted_file_queue"
+            "celery_app.update_task", args=[eventData], queue="converted_queue"
         )
+    print(f'Enviado: {uuid}')
 
 def calc_time(startTime):
     endTime = datetime.datetime.now()
