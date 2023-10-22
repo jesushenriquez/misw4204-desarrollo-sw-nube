@@ -104,10 +104,13 @@ def getTask(task_id):
     task = cursor.fetchone()
     cursor.close()
 
-    video_folder_path = '/app/video_files'
-    out_video_folder_path = video_folder_path + "/out"
-    unique_filename = task[1] + "." +task[4]
-    url = LOCAL_URL + out_video_folder_path + unique_filename
+    video_folder_path = '/app/task/file'
+    in_video_folder_path = video_folder_path
+    out_video_folder_path = video_folder_path
+    source_unique_filename = task[1] + "." + task[3]
+    target_unique_filename = task[1] + "." + task[4]
+    target_url = LOCAL_URL + out_video_folder_path + target_unique_filename
+    source_url = LOCAL_URL + in_video_folder_path + source_unique_filename
 
     if task is not None and task[8] != "disponible":
         task_dict = {
@@ -133,7 +136,8 @@ def getTask(task_id):
             'start_convert': task[6],
             'end_convert': task[7],
             'status': task[8],
-            'url': url
+            'source_url': source_url,
+            'target_url': target_url
         }
         return jsonify(task_dict), 200
     else:
