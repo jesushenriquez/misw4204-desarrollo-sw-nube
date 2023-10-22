@@ -96,6 +96,8 @@ def newTasks():
 
     if response.status_code == 200:
         return response.json(), response.status_code
+    elif response.status_code == 400:
+        return response.json(), response.status_code
     else:
         return "Failed to upload file"
 
