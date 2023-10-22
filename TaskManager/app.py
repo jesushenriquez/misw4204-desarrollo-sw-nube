@@ -50,6 +50,7 @@ CIRCUIT_BREAKER_STATE = "closed"
 
 CONTEXT_PATH= "/api"
 TASKS_PATH= "/tasks"
+LOCAL_URL = "http://localhost:9000"
 
 class Tasks(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -103,7 +104,12 @@ def getTask(task_id):
     task = cursor.fetchone()
     cursor.close()
 
-    if task is not None:
+    video_folder_path = '/app/video_files'
+    out_video_folder_path = video_folder_path + "/out"
+    unique_filename = task[1] + "." +task[4]
+    url = LOCAL_URL + out_video_folder_path + unique_filename
+
+    if task is not None and task[8] != "disponible":
         task_dict = {
             'id': task[0],
             'source_uuid': task[1],
@@ -114,6 +120,20 @@ def getTask(task_id):
             'start_convert': task[6],
             'end_convert': task[7],
             'status': task[8]
+        }
+        return jsonify(task_dict), 200
+    elif task is not None and task[8] == "disponible":
+        task_dict = {
+            'id': task[0],
+            'source_uuid': task[1],
+            'source_name': task[2],
+            'source_format': task[3],
+            'target_format': task[4],
+            'create_datetime': task[5],
+            'start_convert': task[6],
+            'end_convert': task[7],
+            'status': task[8],
+            'url': url
         }
         return jsonify(task_dict), 200
     else:
