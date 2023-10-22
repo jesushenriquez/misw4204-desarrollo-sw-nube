@@ -104,7 +104,7 @@ def getTask(task_id):
     task = cursor.fetchone()
     cursor.close()
 
-    video_folder_path = '/api/task/file/'
+    video_folder_path = '/api/tasks/file/'
     in_video_folder_path = video_folder_path
     out_video_folder_path = video_folder_path
     source_unique_filename = task[1] + "." + task[3]
