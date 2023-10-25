@@ -25,7 +25,7 @@ logging.basicConfig(
 
 # Configura la conexión a la base de datos PostgreSQL
 db_connection = psycopg2.connect(
-    host="postgres",
+    host="10.128.0.3",
     port=5432,
     user="admin",
     password="password",
@@ -35,14 +35,14 @@ db_connection = psycopg2.connect(
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import IntegrityError
 
-celery_app = Celery("taskManager", broker="redis://redis:6379/0", backend="redis://redis:6379/0")
+celery_app = Celery("taskManager", broker="redis://10.128.0.3:6379/0", backend="redis://10.128.0.3:6379/0")
 
 celery_app.conf.task_default_queue = "converted_queue"
 
 app = Flask(__name__)
 app.debug = True
 app.config['PROPAGATE_EXCEPTIONS'] = True
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://admin:password@postgres/cloud_db'  # Reemplaza con tu configuración
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://admin:password@10.128.0.3/cloud_db'  # Reemplaza con tu configuración
 db = SQLAlchemy(app)
 
 MATCHING_SERVICE_URL = "http://motor-emparejamiento:6000/matching"

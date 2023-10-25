@@ -64,7 +64,7 @@ def __generar_token(user_name: str):
 def search_user(data):
     print("Buscando usuario...")
     with psycopg2.connect(
-        dbname="cloud_db", user="admin", password="password", host="postgres"
+        dbname="cloud_db", user="admin", password="password", host="10.128.0.3"
     ) as conn:
         with conn.cursor() as cur:
             cur.execute(
@@ -80,7 +80,7 @@ def search_user(data):
 
 def insert_user(data):
     with psycopg2.connect(
-        dbname="cloud_db", user="admin", password="password", host="postgres"
+        dbname="cloud_db", user="admin", password="password", host="10.128.0.3"
     ) as conn:
         with conn.cursor() as cur:
             result = cur.execute (
