@@ -7,14 +7,14 @@ from moviepy.editor import VideoFileClip
 
 
 app = Celery(
-    "fileConversor", broker="redis://redis:6379/0", backend="redis://redis:6379/0"
+    "fileConversor", broker="redis://10.128.0.3:6379/0", backend="redis://10.128.0.3:6379/0"
 )
 
 app.conf.task_default_queue = "task_queue"
 
 # Configura la conexión a la base de datos PostgreSQL
 db_connection = psycopg2.connect(
-    host="postgres",
+    host="10.128.0.3",
     port=5432,
     user="admin",
     password="password",
