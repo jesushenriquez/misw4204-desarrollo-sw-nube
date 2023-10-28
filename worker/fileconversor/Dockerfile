@@ -13,7 +13,7 @@ RUN apt-get update -y && apt-get install -y \
 WORKDIR /app
 
 # Copy the current directory contents into the container at /app
-COPY api/fileconversor/ /app
+COPY worker/fileconversor/ /app
 
 # Install any needed packages specified in requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
