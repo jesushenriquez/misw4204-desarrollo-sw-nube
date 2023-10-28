@@ -21,9 +21,6 @@ services:
       context: ..
       dockerfile: ./api/taskmanager/Dockerfile
     volumes:
-      - video_files:/app/video_files
+      - /mnt/video_files:/app/video_files
     environment:
       ENV: cloud
-
-volumes:
-  video_files:
