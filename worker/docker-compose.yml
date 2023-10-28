@@ -5,7 +5,7 @@ services:
   file-conversor:
     build:
       context: ..
-      dockerfile: ./api/fileconversor/Dockerfile
+      dockerfile: ./worker/fileconversor/Dockerfile
     volumes:
       - /mnt/video_files:/app/video_files
     environment:
