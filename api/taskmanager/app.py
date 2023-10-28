@@ -9,6 +9,7 @@ import requests
 from celery import Celery
 import time
 import psycopg2
+from dotenv import load_dotenv
 from flask_jwt_extended import JWTManager,create_access_token
 
 app = Flask(__name__)

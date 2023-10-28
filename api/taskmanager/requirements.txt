@@ -8,3 +8,4 @@ psycopg2-binary
 Flask-JWT-Extended
 flask_sqlalchemy==2.5.1
 sqlalchemy==1.4.40
+python-dotenv
