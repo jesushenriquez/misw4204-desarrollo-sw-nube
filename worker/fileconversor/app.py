@@ -23,8 +23,8 @@ def get_env():
 
     # Cargar las variables de entorno
     load_dotenv(env_file, verbose=True)
-    logger.info("REDIS-------" + os.getenv("REDIS_HOST"))
-    logger.info("REDIS-------" + os.getenv("REDIS_PORT"))
+    logger.debug("REDIS-------" + os.getenv("REDIS_HOST"))
+    logger.debug("REDIS-------" + os.getenv("REDIS_PORT"))
 
 get_env()
 
