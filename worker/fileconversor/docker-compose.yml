@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+
+  file-conversor:
+    build:
+      context: ./fileconversor
+      dockerfile: Dockerfile
+    volumes:
+      - video_files:/app/video_files
+
+
+volumes:
+  video_files:
