@@ -5,7 +5,9 @@ import datetime
 from celery import Celery
 from dotenv import load_dotenv
 from moviepy.editor import VideoFileClip
+import logging
 
+logger = logging.getLogger(__name__)
 
 def get_env():
     # Obtener el environment del parámetro del comando
@@ -21,8 +23,8 @@ def get_env():
 
     # Cargar las variables de entorno
     load_dotenv(env_file, verbose=True)
-    print("REDIS-------" + os.getenv("REDIS_HOST"))
-    print("REDIS-------" + os.getenv("REDIS_PORT"))
+    logger.info("REDIS-------" + os.getenv("REDIS_HOST"))
+    logger.info("REDIS-------" + os.getenv("REDIS_PORT"))
 
 get_env()
 
