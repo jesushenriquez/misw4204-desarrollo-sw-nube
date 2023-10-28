@@ -11,8 +11,10 @@ services:
 
   auth-component:
     build:
-      context: ./authcomponent
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: ./api/authcomponent/Dockerfile
+    environment:
+      ENV: cloud
 
   task-manager:
     build:
@@ -20,14 +22,6 @@ services:
       dockerfile: Dockerfile
     volumes:
       - video_files:/app/video_files
-
-  file-conversor:
-    build:
-      context: ./fileconversor
-      dockerfile: Dockerfile
-    volumes:
-      - video_files:/app/video_files
-
 
 volumes:
   video_files:

@@ -1,6 +1,8 @@
 import hashlib
 import logging
+import os
 import psycopg2
+from dotenv import load_dotenv
 from flask_jwt_extended import JWTManager, create_access_token
 from flask import Flask, request, jsonify
 
@@ -9,6 +11,30 @@ app.config['JWT_SECRET_KEY'] = '43141-123-csdf-1-xcvsdf-12asdf-1234%$'
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = False
 app.config['JWT_AlGORITHM'] = 'HS256'
 jwt_manager = JWTManager(app)
+
+def get_env():
+    # Obtener el environment del parámetro del comando
+    env = os.getenv("ENV", "development")
+
+    # Cargar el archivo de entorno correspondiente
+    if env == "local":
+        env_file = "/app/env/.env"
+    elif env == "cloud":
+        env_file = "/app/env/.env.cloud"
+    else:
+        raise ValueError("Environment no válido")
+
+    # Cargar las variables de entorno
+    load_dotenv(env_file, verbose=True)
+
+get_env()
+
+DATABASE_HOST=os.getenv("DATABASE_HOST")
+DATABASE_PORT=os.getenv("DATABASE_PORT")
+DATABASE_USERNAME=os.getenv("DATABASE_USERNAME")
+DATABASE_PASSWORD=os.getenv("DATABASE_PASSWORD")
+DATABASE_NAME=os.getenv("DATABASE_NAME")
+
 
 logging.basicConfig(
     filename="app.log",
@@ -64,7 +90,7 @@ def __generar_token(user_name: str):
 def search_user(data):
     print("Buscando usuario...")
     with psycopg2.connect(
-        dbname="cloud_db", user="admin", password="password", host="10.128.0.3"
+        dbname=DATABASE_NAME, user=DATABASE_USERNAME, password=DATABASE_PASSWORD, host=DATABASE_HOST
     ) as conn:
         with conn.cursor() as cur:
             cur.execute(
@@ -80,7 +106,7 @@ def search_user(data):
 
 def insert_user(data):
     with psycopg2.connect(
-        dbname="cloud_db", user="admin", password="password", host="10.128.0.3"
+        dbname=DATABASE_NAME, user=DATABASE_USERNAME, password=DATABASE_PASSWORD, host=DATABASE_HOST
     ) as conn:
         with conn.cursor() as cur:
             result = cur.execute (
