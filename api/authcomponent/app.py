@@ -14,7 +14,7 @@ jwt_manager = JWTManager(app)
 
 def get_env():
     # Obtener el environment del parámetro del comando
-    env = os.getenv("ENV", "development")
+    env = os.getenv("ENV", "local")
 
     # Cargar el archivo de entorno correspondiente
     if env == "local":

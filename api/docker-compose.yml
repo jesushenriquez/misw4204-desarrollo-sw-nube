@@ -18,10 +18,12 @@ services:
 
   task-manager:
     build:
-      context: ./taskmanager
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: ./api/taskmanager/Dockerfile
     volumes:
       - video_files:/app/video_files
+    environment:
+      ENV: cloud
 
 volumes:
   video_files:

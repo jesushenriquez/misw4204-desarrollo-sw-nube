@@ -16,7 +16,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 EXPOSE 5000
 
 # Define environment variable for Flask to run in production mode
-ENV FLASK_ENV=development
+ENV ENV=${ENV:-local}
+
+COPY ../../.env /app/env/
+COPY ../../.env.cloud /app/env/
 
 # Run app.py when the container launches
-CMD ["python", "app.py"]
+CMD ["python", "app.py", "ENV=${ENV}"]

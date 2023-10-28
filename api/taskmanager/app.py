@@ -17,32 +17,58 @@ app.config['JWT_ACCESS_TOKEN_EXPIRES'] = False
 app.config['JWT_AlGORITHM'] = 'HS256'
 jwt_manager = JWTManager(app)
 
-logging.basicConfig(
-    filename="app.log",
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-)
+def get_env():
+    # Obtener el environment del parámetro del comando
+    env = os.getenv("ENV", "local")
+
+    # Cargar el archivo de entorno correspondiente
+    if env == "local":
+        env_file = "/app/env/.env"
+    elif env == "cloud":
+        env_file = "/app/env/.env.cloud"
+    else:
+        raise ValueError("Environment no válido")
+
+    # Cargar las variables de entorno
+    load_dotenv(env_file, verbose=True)
+
+get_env()
+
+DATABASE_HOST=os.getenv("DATABASE_HOST")
+DATABASE_PORT=os.getenv("DATABASE_PORT")
+DATABASE_USERNAME=os.getenv("DATABASE_USERNAME")
+DATABASE_PASSWORD=os.getenv("DATABASE_PASSWORD")
+DATABASE_NAME=os.getenv("DATABASE_NAME")
+
+REDIS_HOST=os.getenv("REDIS_HOST")
+REDIS_PORT=os.getenv("REDIS_PORT")
+
+#logging.basicConfig(
+#    filename="app.log",
+#    level=logging.INFO,
+#    format="%(asctime)s - %(levelname)s - %(message)s",
+#)
 
 # Configura la conexión a la base de datos PostgreSQL
 db_connection = psycopg2.connect(
-    host="10.128.0.3",
-    port=5432,
-    user="admin",
-    password="password",
-    database="cloud_db"
+    host=DATABASE_HOST,
+    port=DATABASE_PORT,
+    user=DATABASE_USERNAME,
+    password=DATABASE_PASSWORD,
+    database=DATABASE_NAME
 )
 
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import IntegrityError
 
-celery_app = Celery("taskManager", broker="redis://10.128.0.3:6379/0", backend="redis://10.128.0.3:6379/0")
+celery_app = Celery("taskManager", broker=f"redis://{REDIS_HOST}:{REDIS_PORT}/0", backend=f"redis://{REDIS_HOST}:{REDIS_PORT}/0")
 
 celery_app.conf.task_default_queue = "converted_queue"
 
 app = Flask(__name__)
 app.debug = True
 app.config['PROPAGATE_EXCEPTIONS'] = True
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://admin:password@10.128.0.3/cloud_db'  # Reemplaza con tu configuración
+app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql://{DATABASE_USERNAME}:{DATABASE_PASSWORD}@{DATABASE_HOST}/{DATABASE_NAME}'  # Reemplaza con tu configuración
 db = SQLAlchemy(app)
 
 MATCHING_SERVICE_URL = "http://motor-emparejamiento:6000/matching"
