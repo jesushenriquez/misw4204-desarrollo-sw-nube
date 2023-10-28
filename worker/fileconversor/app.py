@@ -21,6 +21,8 @@ def get_env():
 
     # Cargar las variables de entorno
     load_dotenv(env_file, verbose=True)
+    print("REDIS-------" + os.getenv("REDIS_HOST"))
+    print("REDIS-------" + os.getenv("REDIS_PORT"))
 
 get_env()
 
