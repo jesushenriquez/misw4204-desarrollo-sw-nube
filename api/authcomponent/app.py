@@ -36,11 +36,11 @@ DATABASE_PASSWORD=os.getenv("DATABASE_PASSWORD")
 DATABASE_NAME=os.getenv("DATABASE_NAME")
 
 
-logging.basicConfig(
-    filename="app.log",
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-)
+#logging.basicConfig(
+#    filename="app.log",
+#    level=logging.INFO,
+#    format="%(asctime)s - %(levelname)s - %(message)s",
+#)
 @app.route("/")
 def hello():
     return "Hello from auth!"
