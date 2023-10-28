@@ -25,5 +25,5 @@ COPY ../../.env /app/env/
 COPY ../../.env.cloud /app/env/
 
 # Run the Celery worker when the container launches
-CMD ["celery", "-A", "app", "worker", "--loglevel=info", "ENV=${ENV}"]
+CMD ["celery", "-A", "app", "worker", "--loglevel=info"]
 #CMD ["python", "app.py"]
