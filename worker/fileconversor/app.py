@@ -3,22 +3,50 @@ import os
 import psycopg2
 import datetime
 from celery import Celery
+from dotenv import load_dotenv
 from moviepy.editor import VideoFileClip
 
 
+def get_env():
+    # Obtener el environment del parámetro del comando
+    env = os.getenv("ENV", "local")
+
+    # Cargar el archivo de entorno correspondiente
+    if env == "local":
+        env_file = "/app/env/.env"
+    elif env == "cloud":
+        env_file = "/app/env/.env.cloud"
+    else:
+        raise ValueError("Environment no válido")
+
+    # Cargar las variables de entorno
+    load_dotenv(env_file, verbose=True)
+
+get_env()
+
+DATABASE_HOST=os.getenv("DATABASE_HOST")
+DATABASE_PORT=os.getenv("DATABASE_PORT")
+DATABASE_USERNAME=os.getenv("DATABASE_USERNAME")
+DATABASE_PASSWORD=os.getenv("DATABASE_PASSWORD")
+DATABASE_NAME=os.getenv("DATABASE_NAME")
+
+REDIS_HOST=os.getenv("REDIS_HOST")
+REDIS_PORT=os.getenv("REDIS_PORT")
+
+
 app = Celery(
-    "fileConversor", broker="redis://10.128.0.3:6379/0", backend="redis://10.128.0.3:6379/0"
+    "fileConversor", broker=f"redis://{REDIS_HOST}:{REDIS_PORT}/0", backend=f"redis://{REDIS_HOST}:{REDIS_PORT}/0"
 )
 
 app.conf.task_default_queue = "task_queue"
 
 # Configura la conexión a la base de datos PostgreSQL
 db_connection = psycopg2.connect(
-    host="10.128.0.3",
-    port=5432,
-    user="admin",
-    password="password",
-    database="cloud_db"
+    host=DATABASE_HOST,
+    port=DATABASE_PORT,
+    user=DATABASE_USERNAME,
+    password=DATABASE_PASSWORD,
+    database=DATABASE_NAME
 )
 
 @app.task

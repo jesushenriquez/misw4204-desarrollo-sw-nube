@@ -4,10 +4,12 @@ services:
 
   file-conversor:
     build:
-      context: ./fileconversor
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: ./api/taskmanager/Dockerfile
     volumes:
       - video_files:/app/video_files
+    environment:
+      ENV: cloud
 
 
 volumes:

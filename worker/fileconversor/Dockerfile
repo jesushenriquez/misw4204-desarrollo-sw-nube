@@ -13,11 +13,17 @@ RUN apt-get update -y && apt-get install -y \
 WORKDIR /app
 
 # Copy the current directory contents into the container at /app
-COPY . /app
+COPY api/fileconversor/ /app
 
 # Install any needed packages specified in requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Define environment variable for Flask to run in production mode
+ENV ENV=${ENV:-local}
+
+COPY ../../.env /app/env/
+COPY ../../.env.cloud /app/env/
+
 # Run the Celery worker when the container launches
-CMD ["celery", "-A", "app", "worker", "--loglevel=info"]
+CMD ["celery", "-A", "app", "worker", "--loglevel=info", "ENV=${ENV}"]
 #CMD ["python", "app.py"]
