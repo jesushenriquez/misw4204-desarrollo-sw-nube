@@ -42,6 +42,8 @@ app = Celery(
     "fileConversor", broker=f"redis://{REDIS_HOST}:{REDIS_PORT}/0", backend=f"redis://{REDIS_HOST}:{REDIS_PORT}/0"
 )
 
+app.conf.worker_pool = "solo"
+
 app.conf.task_default_queue = "task_queue"
 
 # Configura la conexión a la base de datos PostgreSQL
