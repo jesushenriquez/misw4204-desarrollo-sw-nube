@@ -1,6 +1,6 @@
 # Video File Conversor - Grupo 13
 
-Este proyecto permite realizar la conversión de archivos de video desde y hacia los siguientes formatos de video:
+Este proyecto permite realizar la conversión de archivos de videos desde y hacia los siguientes formatos de video:
 * mp4
 * webm
 * avi

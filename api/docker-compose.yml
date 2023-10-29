@@ -1,0 +1,26 @@
+version: '3'
+
+services:
+
+  api-gateway:
+    build:
+      context: ./apigateway
+      dockerfile: Dockerfile
+    ports:
+      - "80:9000"
+
+  auth-component:
+    build:
+      context: ..
+      dockerfile: ./api/authcomponent/Dockerfile
+    environment:
+      ENV: cloud
+
+  task-manager:
+    build:
+      context: ..
+      dockerfile: ./api/taskmanager/Dockerfile
+    volumes:
+      - /mnt/video_files:/app/video_files
+    environment:
+      ENV: cloud

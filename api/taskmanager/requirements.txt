@@ -1,0 +1,11 @@
+flask==2.0.1
+celery==5.1.2
+requests==2.26.0
+redis==3.5.3
+requests
+werkzeug==2.0
+psycopg2-binary
+Flask-JWT-Extended
+flask_sqlalchemy==2.5.1
+sqlalchemy==1.4.40
+python-dotenv

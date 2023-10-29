@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+
+  file-conversor:
+    build:
+      context: ..
+      dockerfile: ./worker/fileconversor/Dockerfile
+    volumes:
+      - /mnt/video_files:/app/video_files
+    environment:
+      ENV: cloud
