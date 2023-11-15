@@ -4,3 +4,4 @@ requests
 moviepy
 sqlalchemy==1.4.40
 python-dotenv
+google-cloud-pubsub

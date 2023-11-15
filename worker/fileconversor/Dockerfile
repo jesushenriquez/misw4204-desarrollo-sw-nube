@@ -20,6 +20,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Define environment variable for Flask to run in production mode
 ENV ENV=${ENV:-local}
+ENV GOOGLE_APPLICATION_CREDENTIALS=/app/cloud-w3-403103-d05bfab17c67.json
 
 COPY ../../.env /app/env/
 COPY ../../.env.cloud /app/env/
