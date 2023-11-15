@@ -8,7 +8,6 @@ from flask import Flask, request, jsonify, send_file
 #import datetime
 import logging
 import requests
-from celery import Celery
 import time
 import psycopg2
 from dotenv import load_dotenv
@@ -63,10 +62,6 @@ db_connection = psycopg2.connect(
 
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import IntegrityError
-
-celery_app = Celery("taskManager", broker=f"redis://{REDIS_HOST}:{REDIS_PORT}/0", backend=f"redis://{REDIS_HOST}:{REDIS_PORT}/0")
-
-celery_app.conf.task_default_queue = "converted_queue"
 
 app = Flask(__name__)
 app.debug = True
@@ -274,10 +269,6 @@ def create_task():
         data = json.dumps(eventData).encode("utf-8")
 
         publish_data = publisher.publish(topic_path, data)
-
-        celery_app.send_task(
-            "app.convert", args=[eventData], queue="task_queue"
-        )
 
         #return jsonify({'message': 'Video uploaded successfully', 'filename': unique_filename}), 200
 
