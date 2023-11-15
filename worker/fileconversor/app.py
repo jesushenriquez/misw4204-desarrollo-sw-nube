@@ -22,8 +22,6 @@ def get_env():
 
     # Cargar las variables de entorno
     load_dotenv(env_file, verbose=True)
-    logger.debug("REDIS-------" + os.getenv("REDIS_HOST"))
-    logger.debug("REDIS-------" + os.getenv("REDIS_PORT"))
 
 get_env()
 
@@ -32,9 +30,6 @@ DATABASE_PORT=os.getenv("DATABASE_PORT")
 DATABASE_USERNAME=os.getenv("DATABASE_USERNAME")
 DATABASE_PASSWORD=os.getenv("DATABASE_PASSWORD")
 DATABASE_NAME=os.getenv("DATABASE_NAME")
-
-REDIS_HOST=os.getenv("REDIS_HOST")
-REDIS_PORT=os.getenv("REDIS_PORT")
 
 
 # Configura la conexión a la base de datos PostgreSQL
