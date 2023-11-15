@@ -1,6 +1,8 @@
+import json
 from datetime import datetime
 import os
 import uuid
+from google.cloud import pubsub_v1
 
 from flask import Flask, request, jsonify, send_file
 #import datetime
@@ -254,6 +256,13 @@ def create_task():
         db.session.add(new_task)
         db.session.commit()
 
+        # GCP PUB SUB Integration
+        project_id = "cloud-w3-403103"
+        topic_name = "converter-pubsub"
+
+        publisher = pubsub_v1.PublisherClient()
+        topic_path = publisher.topic_path(project_id, topic_name)
+
         # Enviar evento a file conversor
         eventData = {
             "uuid": source_uuid,
@@ -261,6 +270,10 @@ def create_task():
             "file_name": source_uuid + "." + target_format.lower(),
             "format": target_format.lower()
         }
+
+        data = json.dumps(eventData).encode("utf-8")
+
+        publish_data = publisher.publish(topic_path, data)
 
         celery_app.send_task(
             "app.convert", args=[eventData], queue="task_queue"
