@@ -1,5 +1,7 @@
 import os
 import datetime
+import threading
+
 from google.cloud import pubsub_v1
 from dotenv import load_dotenv
 from moviepy.editor import VideoFileClip
@@ -118,19 +120,36 @@ def calc_time(startTime):
     print(f'Tiempo de conversión: {milliseconds} ms')
     return endTime
 
-def callback(message):
-    data = message.data.decode("utf-8")
-    print(f"Mensaje recibido: {data}")
-    data_dict = eval(data)  # Asumiendo que el mensaje es un diccionario en forma de cadena
-    convertir_video(data_dict['uuid'], data_dict['file_path'], f'video_files/out/{data_dict["file_name"]}', data_dict['format'])
-    message.ack()
+lock = threading.Lock()
+
+def procesar_mensaje(message):
+    try:
+        with lock:
+            logger.info(f"Procesando mensaje: {message.data}")
+            print((f"Procesando mensaje: {message.data}"))
+
+            data = message.data.decode("utf-8")
+            print(f"Mensaje recibido: {data}")
+            data_dict = eval(data)  # Asumiendo que el mensaje es un diccionario en forma de cadena
+            convertir_video(data_dict['uuid'], data_dict['file_path'], f'video_files/out/{data_dict["file_name"]}',
+                            data_dict['format'])
+
+            message.ack()
+            lock.release()
+
+    except Exception as e:
+        # Si ocurre un error, no confirmar el mensaje y manejar el error (opcional)
+        print(f"Error al procesar mensaje: {str(e)}")
+        # No confirmar el mensaje para que sea reencolado
+        message.nack()
+
 
 subscriber = pubsub_v1.SubscriberClient()
 
 # GCP PUB SUB Integration
 project_id = "cloud-w3-403103"
 subscription_path = "projects/cloud-w3-403103/subscriptions/converter-subscription"
-subscriber.subscribe(subscription_path, callback=callback)
+subscriber.subscribe(subscription_path, callback=procesar_mensaje)
 
 logger.info(f'Escuchando mensajes en la suscripción: {subscription_path}')
 print(f'Escuchando mensajes en la suscripción: {subscription_path}')
