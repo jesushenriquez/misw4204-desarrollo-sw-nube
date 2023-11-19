@@ -131,7 +131,8 @@ def procesar_mensaje(message):
             # Procesa el mensaje si el semáforo se adquiere con éxito
             with semaphore:
                 # Coloca aquí el código para procesar el mensaje
-                print(f"Procesando mensaje: {message.data}")
+                logger.info(f"Procesando mensaje: {message.data}")
+                print((f"Procesando mensaje: {message.data}"))
 
                 data = message.data.decode("utf-8")
                 print(f"Mensaje recibido: {data}")
@@ -141,7 +142,7 @@ def procesar_mensaje(message):
 
                 message.ack()  # Acknowledge del mensaje para indicar que ha sido procesado
         else:
-            print("Semaforo ocupado. No se procesará el mensaje.")
+            logger.debug("Semaforo ocupado. No se procesará el mensaje.")
             message.nack()  # Marcar el mensaje como no confirmado para que sea reencolado
 
     except Exception as e:
