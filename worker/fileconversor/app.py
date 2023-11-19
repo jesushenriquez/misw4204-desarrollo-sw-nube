@@ -120,20 +120,11 @@ def calc_time(startTime):
     print(f'Tiempo de conversión: {milliseconds} ms')
     return endTime
 
-# Semáforo para controlar el número máximo de mensajes procesados simultáneamente
-procesando = False
-
-def isProcessing():
-    return procesando
-
-def swapProcessing():
-    procesando = not isProcessing()
+lock = threading.Lock()
 
 def procesar_mensaje(message):
     try:
-        if isProcessing() == False:
-            swapProcessing()
-            # Coloca aquí el código para procesar el mensaje
+        with lock:
             logger.info(f"Procesando mensaje: {message.data}")
             print((f"Procesando mensaje: {message.data}"))
 
@@ -144,15 +135,14 @@ def procesar_mensaje(message):
                             data_dict['format'])
 
             message.ack()
-        else:
-            logger.debug("Semaforo ocupado. No se procesará el mensaje.")
-            message.nack()
+            lock.release()
 
     except Exception as e:
         # Si ocurre un error, no confirmar el mensaje y manejar el error (opcional)
         print(f"Error al procesar mensaje: {str(e)}")
         # No confirmar el mensaje para que sea reencolado
         message.nack()
+
 
 subscriber = pubsub_v1.SubscriberClient()
 
