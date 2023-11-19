@@ -121,7 +121,7 @@ def calc_time(startTime):
     return endTime
 
 # Semáforo para controlar el número máximo de mensajes procesados simultáneamente
-max_concurrent_messages = 2
+max_concurrent_messages = 1
 semaphore = threading.Semaphore(max_concurrent_messages)
 
 def procesar_mensaje(message):
