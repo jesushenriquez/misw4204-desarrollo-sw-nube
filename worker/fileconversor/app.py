@@ -1,5 +1,7 @@
 import os
 import datetime
+import threading
+
 from google.cloud import pubsub_v1
 from dotenv import load_dotenv
 from moviepy.editor import VideoFileClip
@@ -118,12 +120,39 @@ def calc_time(startTime):
     print(f'Tiempo de conversión: {milliseconds} ms')
     return endTime
 
+# Semáforo para controlar el número máximo de mensajes procesados simultáneamente
+max_concurrent_messages = 2
+semaphore = threading.Semaphore(max_concurrent_messages)
+
+def procesar_mensaje(message):
+    try:
+        # Intenta adquirir el semáforo, si está ocupado, marca el mensaje como no confirmado
+        if semaphore.acquire(blocking=False):
+            # Procesa el mensaje si el semáforo se adquiere con éxito
+            with semaphore:
+                # Coloca aquí el código para procesar el mensaje
+                print(f"Procesando mensaje: {message.data}")
+
+                data = message.data.decode("utf-8")
+                print(f"Mensaje recibido: {data}")
+                data_dict = eval(data)  # Asumiendo que el mensaje es un diccionario en forma de cadena
+                convertir_video(data_dict['uuid'], data_dict['file_path'], f'video_files/out/{data_dict["file_name"]}',
+                                data_dict['format'])
+
+                message.ack()  # Acknowledge del mensaje para indicar que ha sido procesado
+        else:
+            print("Semaforo ocupado. No se procesará el mensaje.")
+            message.nack()  # Marcar el mensaje como no confirmado para que sea reencolado
+
+    except Exception as e:
+        # Si ocurre un error, no confirmar el mensaje y manejar el error (opcional)
+        print(f"Error al procesar mensaje: {str(e)}")
+        # No confirmar el mensaje para que sea reencolado
+        message.nack()
+
 def callback(message):
-    data = message.data.decode("utf-8")
-    print(f"Mensaje recibido: {data}")
-    data_dict = eval(data)  # Asumiendo que el mensaje es un diccionario en forma de cadena
-    convertir_video(data_dict['uuid'], data_dict['file_path'], f'video_files/out/{data_dict["file_name"]}', data_dict['format'])
-    message.ack()
+    # Llama a la función de procesamiento del mensaje en un hilo separado
+    threading.Thread(target=procesar_mensaje, args=(message,)).start()
 
 subscriber = pubsub_v1.SubscriberClient()
 
