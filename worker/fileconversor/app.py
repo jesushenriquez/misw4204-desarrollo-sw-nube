@@ -7,6 +7,9 @@ from dotenv import load_dotenv
 from moviepy.editor import VideoFileClip
 import psycopg2
 import logging
+from flask import Flask
+from google.cloud import storage
+from io import BytesIO
 
 logger = logging.getLogger(__name__)
 
@@ -55,22 +58,38 @@ class FileRetriever:
         return self.id
 
 
+
 def convertir_video(uuid,input_path, output_path, formato_salida='mp4'):
     try:
+        bucket_name = "video_files_cloud_w3"
+        archivo_destino = output_path
 
-        out_path = "/app/video_files/out/"
-        if not os.path.exists(out_path):
-            os.makedirs(out_path)
-
+        descargar_video(bucket_name, input_path)
+        print(f'Video descargado exitosamente')
         startTime = datetime.datetime.now()
-        video = VideoFileClip(input_path)
+        video = descargar_video(bucket_name, input_path)
         convert_video(output_path, formato_salida, video)
+
         print(f'Video convertido exitosamente a {formato_salida}')
         endTime = calc_time(startTime)
         update_task(uuid, startTime, endTime, 'success')
     except Exception as e:
         print(f'Error al convertir el video: {str(e)}')
         update_task(uuid, None, None, 'failure')
+
+def descargar_video(bucket_name, input_path):
+
+    cliente = storage.Client()
+    print("Creación del cliente de almacenamiento")
+    destino_local = 'video_files/in/'
+    bucket_origen = cliente.bucket(bucket_name)
+    print("Obtención del bucket")
+    blob_origen = bucket_origen.blob(input_path)
+    print("Obtención del blob", blob_origen)
+    # blob_origen.download_to_filename(destino_local)
+    video_bytes = BytesIO(blob_origen.download_as_bytes())
+    print("Descarga del archivo")
+    return video_bytes
 
 def update_task(uuid, startTime, endTime, status):
     print(f'Recibiendo evento de actualización')
@@ -154,8 +173,16 @@ subscriber.subscribe(subscription_path, callback=procesar_mensaje)
 logger.info(f'Escuchando mensajes en la suscripción: {subscription_path}')
 print(f'Escuchando mensajes en la suscripción: {subscription_path}')
 
-while True:
-    pass
+app = Flask(__name__)
+
+@app.route("/")
+def hello_world():
+    """Example Hello World route."""
+    name = os.environ.get("NAME", "World")
+    return f"Hello {name}!"
+
+if __name__ == "__main__":
+    app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
 
 
 

@@ -13,7 +13,7 @@ RUN apt-get update -y && apt-get install -y \
 WORKDIR /app
 
 # Copy the current directory contents into the container at /app
-COPY worker/fileconversor/ /app
+COPY . /app
 
 # Install any needed packages specified in requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
@@ -22,9 +22,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 ENV ENV=${ENV:-local}
 ENV GOOGLE_APPLICATION_CREDENTIALS=/app/cloud-w3-403103-d05bfab17c67.json
 
-COPY ../../.env /app/env/
-COPY ../../.env.cloud /app/env/
+COPY .env /app/env/
+COPY .env.cloud /app/env/
 
 # Run the Celery worker when the container launches
-CMD ["celery", "-A", "app", "worker", "--loglevel=info"]
-#CMD ["python", "app.py"]
+#CMD ["celery", "-A", "app", "worker", "--loglevel=info"]
+CMD ["python", "app.py"]

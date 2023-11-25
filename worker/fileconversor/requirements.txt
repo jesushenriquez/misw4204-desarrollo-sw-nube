@@ -5,3 +5,5 @@ moviepy
 sqlalchemy==1.4.40
 python-dotenv
 google-cloud-pubsub
+google-cloud-storage
+Flask
