@@ -10,6 +10,7 @@ import logging
 from flask import Flask
 from google.cloud import storage
 from io import BytesIO
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -181,10 +182,12 @@ def hello_world():
     name = os.environ.get("NAME", "World")
     return f"Hello {name}!"
 
+
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
 
-
+while True:
+    time.sleep(30)
 
 #if __name__ == '__main__':
 #    formats = ['mp4', 'webm', 'avi', 'mpeg', 'wmv']
