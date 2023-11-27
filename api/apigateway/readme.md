@@ -7,7 +7,7 @@ docker push us-central1-docker.pkg.dev/cloud-w3-403103/cloud-run-source-deploy/a
 ```
 
 ```
-❯ gcloud run deploy testapi --image us-central1-docker.pkg.dev/cloud-w3-403103/cloud-run-source-deploy/apigateway:latest --region us-central1 
+gcloud run deploy apigateway --image us-central1-docker.pkg.dev/cloud-w3-403103/cloud-run-source-deploy/apigateway:latest --region us-central1 
 ```
 
 

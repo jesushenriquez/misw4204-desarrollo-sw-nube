@@ -102,7 +102,7 @@ def newTasks():
     new_format = request.form.get('newFormat')
 
     # Define la URL del endpoint de carga de archivos
-    UPLOAD_URL = "http://task-manager:5000/api/tasks"
+    UPLOAD_URL = TASK_SERVICE_URL + "api/tasks"
 
     # Define los datos para la solicitud
     files = {'fileName': (video_file.filename, video_file, 'multipart/form-data')}
