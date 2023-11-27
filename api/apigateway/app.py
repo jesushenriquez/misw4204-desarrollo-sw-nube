@@ -1,3 +1,6 @@
+import os
+
+from dotenv import load_dotenv
 from flask import Flask, request, jsonify, Response
 import requests
 from celery import Celery
@@ -10,6 +13,23 @@ logging.basicConfig(
     datefmt="%Y-%m-%d %H:%M:%S",
 )
 
+def get_env():
+    # Obtener el environment del parámetro del comando
+    env = os.getenv("ENV", "local")
+
+    # Cargar el archivo de entorno correspondiente
+    if env == "local":
+        env_file = "/app/env/.env"
+    elif env == "cloud":
+        env_file = ".env.cloud"
+    else:
+        raise ValueError("Environment no válido")
+
+    # Cargar las variables de entorno
+    load_dotenv(env_file, verbose=True)
+
+get_env()
+
 celery_app = Celery("apigateway", broker="redis://redis:6379/0")
 
 app = Flask(__name__)
@@ -17,8 +37,8 @@ app.logger.setLevel(logging.INFO)
 
 # INTEGRITY_MANAGER_SERVICE_URL = "http://integrity-manager:6000/"
 # INFORMACION_HV_BUSCADOR_URL = "http://informacion-hv-buscadores:5000/"
-TASK_SERVICE_URL = "http://task-manager:5000/"
-AUTH_SERVICE_URL = "http://auth-component:8080/"
+TASK_SERVICE_URL = os.getenv("TASK_SERVICE_URL")
+AUTH_SERVICE_URL = os.getenv("AUTH_SERVICE_URL")
 
 CONTEXT_PATH= "/api"
 AUTH_PATH= "/auth"
@@ -161,4 +181,4 @@ def get_file(filename):
 
 if __name__ == "__main__":
     print("Starting apigateway...")
-    app.run(host="0.0.0.0", port=9000)
+    app.run(host="0.0.0.0", port=8080)

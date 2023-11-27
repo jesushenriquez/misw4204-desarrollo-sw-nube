@@ -4,3 +4,4 @@ requests==2.26.0
 redis==3.5.3
 requests
 werkzeug==2.0
+python-dotenv
