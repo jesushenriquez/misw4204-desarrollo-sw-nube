@@ -11,6 +11,7 @@ from flask import Flask
 from google.cloud import storage
 from io import BytesIO
 import time
+import concurrent.futures
 
 logger = logging.getLogger(__name__)
 
@@ -164,15 +165,15 @@ def procesar_mensaje(message):
         message.nack()
 
 
-subscriber = pubsub_v1.SubscriberClient()
+# subscriber = pubsub_v1.SubscriberClient()
 
 # GCP PUB SUB Integration
-project_id = "cloud-w3-403103"
-subscription_path = "projects/cloud-w3-403103/subscriptions/converter-subscription"
-subscriber.subscribe(subscription_path, callback=procesar_mensaje)
 
-logger.info(f'Escuchando mensajes en la suscripción: {subscription_path}')
-print(f'Escuchando mensajes en la suscripción: {subscription_path}')
+# subscription_path = "projects/cloud-w3-403103/subscriptions/converter-subscription"
+# subscriber.subscribe(subscription_path, callback=procesar_mensaje)
+
+# logger.info(f'Escuchando mensajes en la suscripción: {subscription_path}')
+# print(f'Escuchando mensajes en la suscripción: {subscription_path}')
 
 app = Flask(__name__)
 
@@ -182,14 +183,32 @@ def hello_world():
     name = os.environ.get("NAME", "World")
     return f"Hello {name}!"
 
+def callback(message):
+    print(f"Mensaje recibido: {message.data}")
+    message.ack()
+
+def recibir_mensajes(project_id, subscription_name):
+    subscriber = pubsub_v1.SubscriberClient()
+    subscription_path = subscriber.subscription_path(project_id, subscription_name)
+
+    def worker():
+        streaming_pull_future = subscriber.subscribe(subscription_path, callback=callback)
+        print(f"Escuchando mensajes en {subscription_path}...")
+
+        try:
+            streaming_pull_future.result()
+        except Exception as e:
+            print(f"Error al recibir mensajes: {e}")
+            streaming_pull_future.cancel()
+
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        executor.submit(worker)
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
+    project_id = "cloud-w3-403103"
+    subscription_name = 'converter-subscription'
+    recibir_mensajes(project_id, subscription_name)
 
-while True:
-    time.sleep(30)
 
-#if __name__ == '__main__':
-#    formats = ['mp4', 'webm', 'avi', 'mpeg', 'wmv']
-#    for format in formats:
-#        convertir_video('video_files/in/video.mp4', f'video_files/out/video_convertido.{format}', format)
+    
