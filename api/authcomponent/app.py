@@ -18,9 +18,9 @@ def get_env():
 
     # Cargar el archivo de entorno correspondiente
     if env == "local":
-        env_file = "/app/env/.env"
+        env_file = ".env"
     elif env == "cloud":
-        env_file = "/app/env/.env.cloud"
+        env_file = ".env.cloud"
     else:
         raise ValueError("Environment no válido")
 

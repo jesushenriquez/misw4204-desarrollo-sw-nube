@@ -9,3 +9,4 @@ flask_sqlalchemy==2.5.1
 sqlalchemy==1.4.40
 python-dotenv
 google-cloud-pubsub
+google-cloud-storage

@@ -3,6 +3,7 @@ from datetime import datetime
 import os
 import uuid
 from google.cloud import pubsub_v1
+from google.cloud import storage
 
 from flask import Flask, request, jsonify, send_file
 #import datetime
@@ -25,9 +26,9 @@ def get_env():
 
     # Cargar el archivo de entorno correspondiente
     if env == "local":
-        env_file = "/app/env/.env"
+        env_file = ".env"
     elif env == "cloud":
-        env_file = "/app/env/.env.cloud"
+        env_file = ".env.cloud"
     else:
         raise ValueError("Environment no válido")
 
@@ -231,10 +232,24 @@ def create_task():
     source_video_folder_path = video_folder_path + "/in"
 
     # Asegúrate de que la carpeta de destino exista
-    os.makedirs(source_video_folder_path, exist_ok=True)
+    #os.makedirs(source_video_folder_path, exist_ok=True)
 
     # Guarda el archivo en la carpeta de destino con el nombre único
-    video_file.save(os.path.join(source_video_folder_path, unique_filename))
+    #video_file.save(os.path.join(source_video_folder_path, unique_filename))
+
+    GCP_BUCKET_NAME = 'video_files_cloud_w3'
+    GCP_DIRECTORY = 'in/'
+
+    # Subir el archivo al bucket de GCP
+    client = storage.Client()
+    bucket = client.bucket(GCP_BUCKET_NAME)
+    blob = bucket.blob(GCP_DIRECTORY + unique_filename)
+
+    # Guardar el archivo en el bucket
+    blob.upload_from_string(
+        video_file.read(),
+        content_type=video_file.content_type
+    )
 
     try:
         # Crea una nueva tarea en la base de datos
@@ -304,4 +319,4 @@ def download_file(filename):
     return send_file(filepath, as_attachment=True, download_name=filename, mimetype='application/octet-stream')
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    app.run(host="0.0.0.0", port=8080)
