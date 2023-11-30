@@ -19,11 +19,13 @@ COPY . /app
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Define environment variable for Flask to run in production mode
-ENV ENV=${ENV:-local}
+# ENV ENV=${ENV:-local}
+EXPOSE 8080
+ENV ENV=cloud
 ENV GOOGLE_APPLICATION_CREDENTIALS=/app/cloud-w3-403103-d05bfab17c67.json
 
-COPY .env /app/env/
-COPY .env.cloud /app/env/
+# COPY .env /app/env/
+# COPY .env.cloud /app/env/
 
 # Run the Celery worker when the container launches
 #CMD ["celery", "-A", "app", "worker", "--loglevel=info"]
